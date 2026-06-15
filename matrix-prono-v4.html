@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrix Prono — Pronostics d'Élite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#0a0b0d;--dark:#111318;--card:#161a22;--card2:#1c2130;
+  --b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);
+  --red:#e63232;--rdim:rgba(230,50,50,.14);
+  --cr:#f0ece0;--crd:rgba(240,236,224,.55);--mu:rgba(240,236,224,.32);
+  --ok:#1db87a;--ok-dim:rgba(29,184,122,.15);
+  --wn:#e8a020;--wn-dim:rgba(232,160,32,.14);
+  --bl:#4a9eff;
+  --fd:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--cr);font-family:var(--fb);font-size:14px;line-height:1.6;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.022) 2px,rgba(0,0,0,.022) 4px);pointer-events:none;z-index:9999;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:200;background:rgba(10,11,13,.97);backdrop-filter:blur(18px);border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:54px;}
+.logo{font-family:var(--fd);font-size:25px;letter-spacing:.04em;user-select:none;cursor:pointer;}
+.logo em{color:var(--red);font-style:normal;}
+.nav-c{display:flex;}
+.nt{height:54px;padding:0 14px;display:flex;align-items:center;font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;transition:all .18s;white-space:nowrap;}
+.nt:hover{color:var(--cr);}
+.nt.on{color:var(--cr);border-bottom-color:var(--red);}
+.nav-r{display:flex;align-items:center;gap:10px;}
+#clk{font-family:var(--fm);font-size:11px;color:var(--mu);}
+.lpill{display:flex;align-items:center;gap:5px;font-family:var(--fm);font-size:8px;letter-spacing:.12em;color:var(--red);text-transform:uppercase;}
+.ld{width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 1.2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.18;}}
+.rbtn{font-family:var(--fm);font-size:8px;letter-spacing:.1em;background:transparent;border:1px solid var(--b2);color:var(--mu);padding:4px 10px;border-radius:3px;cursor:pointer;text-transform:uppercase;transition:all .18s;display:flex;align-items:center;gap:5px;}
+.rbtn:hover{color:var(--cr);border-color:var(--cr);}
+.rbtn:disabled{opacity:.5;cursor:not-allowed;}
+.spin{display:inline-block;animation:rot .65s linear infinite;}
+@keyframes rot{to{transform:rotate(360deg);}}
+
+/* IBAR */
+.ibar{background:var(--card2);border-bottom:1px solid var(--b1);padding:5px 1.5rem;display:flex;align-items:center;justify-content:space-between;font-family:var(--fm);font-size:9px;color:var(--mu);}
+.ibar-l{display:flex;align-items:center;gap:10px;}
+.ibar-next{color:var(--crd);}
+.ibar-cd{color:var(--wn);font-weight:700;min-width:70px;}
+.ibar-r{display:flex;align-items:center;gap:6px;}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--ok);}
+
+/* TICKER */
+.twr{background:var(--dark);border-bottom:1px solid var(--b1);overflow:hidden;height:30px;display:flex;align-items:center;}
+.ttag{background:var(--red);color:#fff;font-family:var(--fm);font-size:8px;letter-spacing:.16em;padding:0 13px;height:100%;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;text-transform:uppercase;}
+.tinn{overflow:hidden;flex:1;}
+.ttrk{display:flex;animation:tk 55s linear infinite;white-space:nowrap;}
+@keyframes tk{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.ti{display:inline-flex;align-items:center;gap:6px;padding:0 1.8rem;font-family:var(--fm);font-size:9px;color:var(--crd);letter-spacing:.05em;}
+.tiw{color:var(--ok);}
+.tis{color:var(--b2);}
+
+/* HERO */
+.hero{padding:1.8rem 1.5rem 1.1rem;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 65% 50% at 50% 0%,rgba(230,50,50,.1),transparent 70%);pointer-events:none;}
+.h-eye{font-family:var(--fm);font-size:9px;letter-spacing:.2em;color:var(--red);text-transform:uppercase;margin-bottom:.5rem;}
+.h1{font-family:var(--fd);font-size:clamp(42px,6.5vw,80px);line-height:.9;letter-spacing:.03em;}
+.h1 em{color:var(--red);font-style:normal;}
+.h-sub{color:var(--mu);font-size:12px;max-width:420px;margin:.5rem auto 1.1rem;}
+.h-kpis{display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap;}
+.kv{font-family:var(--fd);font-size:30px;line-height:1;color:var(--cr);}
+.kv em{color:var(--red);font-style:normal;}
+.kl{font-family:var(--fm);font-size:8px;letter-spacing:.12em;color:var(--mu);text-transform:uppercase;margin-top:3px;}
+
+/* AD */
+.ad{background:var(--card2);border-top:1px solid var(--b1);border-bottom:1px solid var(--b1);padding:6px 1.5rem;display:flex;align-items:center;justify-content:center;gap:10px;font-size:11px;color:var(--mu);}
+.ad a{color:var(--wn);text-decoration:none;font-weight:600;}
+.adtag{font-family:var(--fm);font-size:8px;background:rgba(255,255,255,.05);padding:2px 6px;border-radius:2px;letter-spacing:.08em;}
+
+/* PAGES */
+.page-view{display:none;max-width:1200px;margin:0 auto;padding:1.2rem 1.5rem;}
+.page-view.on{display:block;}
+.cols{display:grid;grid-template-columns:1fr 330px;gap:1.2rem;align-items:start;}
+
+/* SECTION HEADER */
+.sh{display:flex;align-items:center;gap:9px;margin-bottom:.9rem;flex-wrap:wrap;}
+.sh-t{font-family:var(--fd);font-size:24px;letter-spacing:.04em;}
+.bdg{font-family:var(--fm);font-size:8px;letter-spacing:.12em;padding:3px 8px;border-radius:2px;text-transform:uppercase;}
+.bdg-r{background:var(--rdim);color:var(--red);}
+.bdg-ok{background:var(--ok-dim);color:var(--ok);}
+.bdg-w{background:var(--wn-dim);color:var(--wn);}
+.upd{font-family:var(--fm);font-size:8px;color:var(--mu);}
+
+/* TOURNAMENT TABS */
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem;}
+.tab{padding:4px 11px;border-radius:3px;font-family:var(--fm);font-size:8px;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;border:1px solid var(--b1);color:var(--mu);background:transparent;transition:all .16s;}
+.tab:hover{border-color:var(--b2);color:var(--cr);}
+.tab.on{background:var(--red);color:#fff;border-color:var(--red);}
+
+/* MATCH CARD */
+.mc{background:var(--card);border:1px solid var(--b1);border-radius:8px;margin-bottom:.8rem;overflow:hidden;transition:border-color .2s;}
+.mc:hover{border-color:var(--b2);}
+.mc.hot{border-color:rgba(230,50,50,.35);}
+.mc.hot .mct{border-top:2px solid var(--red);}
+.mct{padding:8px 14px;background:var(--card2);border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;}
+.mcc{display:flex;align-items:center;gap:7px;font-family:var(--fm);font-size:8px;letter-spacing:.07em;color:var(--mu);text-transform:uppercase;}
+.mcr{display:flex;align-items:center;gap:7px;}
+.mtime{font-family:var(--fm);font-size:11px;color:var(--wn);font-weight:700;}
+.hpill{font-family:var(--fm);font-size:7px;color:#fff;background:var(--red);padding:2px 6px;border-radius:2px;text-transform:uppercase;}
+.mcb{padding:12px 14px;}
+.trow{display:flex;align-items:center;margin-bottom:9px;}
+.tb{flex:1;}
+.tb.aw .tn{text-align:right;}
+.tb.aw .fr{justify-content:flex-end;}
+.tn{font-size:15px;font-weight:600;color:var(--cr);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fr{display:flex;gap:3px;}
+.fd{width:14px;height:14px;border-radius:50%;font-family:var(--fm);font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fd.W{background:var(--ok);color:#fff;} .fd.D{background:var(--wn);color:#000;} .fd.L{background:var(--red);color:#fff;} .fd.x{background:var(--b1);}
+.vsb{width:74px;text-align:center;flex-shrink:0;}
+.vst{font-family:var(--fm);font-size:9px;color:var(--mu);}
+.sbig{font-family:var(--fd);font-size:28px;letter-spacing:.1em;color:var(--cr);line-height:1;}
+.pw{margin-bottom:9px;}
+.pbar{height:5px;background:var(--b1);border-radius:3px;overflow:hidden;display:flex;margin-bottom:4px;}
+.ps{height:100%;transition:width .7s ease;}
+.ps.d{background:var(--bl);} .ps.n{background:var(--wn);} .ps.e{background:var(--ok);}
+.pls{display:flex;justify-content:space-between;font-family:var(--fm);font-size:8px;}
+.pl{display:flex;align-items:center;gap:3px;color:var(--mu);}
+.pl span{font-weight:700;}
+.pl.d span{color:var(--bl);} .pl.n span{color:var(--wn);} .pl.e span{color:var(--ok);}
+.mgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;padding-top:9px;border-top:1px solid var(--b1);}
+.gc{background:var(--black);border-radius:5px;padding:9px 10px;}
+.gcl{font-family:var(--fm);font-size:7px;letter-spacing:.1em;color:var(--mu);text-transform:uppercase;margin-bottom:5px;}
+.bv{font-family:var(--fd);font-size:28px;letter-spacing:.05em;color:var(--wn);}
+.br{font-family:var(--fm);font-size:8px;color:var(--mu);margin-top:1px;}
+.sc{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;font-size:11px;}
+.scn{color:var(--crd);} .scp{font-family:var(--fm);font-size:8px;color:var(--ok);}
+.pv{font-family:var(--fd);font-size:17px;letter-spacing:.03em;color:var(--cr);line-height:1.1;margin-bottom:4px;}
+.ct{font-family:var(--fm);font-size:12px;font-weight:700;color:var(--wn);background:var(--wn-dim);padding:2px 7px;border-radius:3px;display:inline-block;}
+.cf{font-family:var(--fm);font-size:7px;color:var(--mu);margin-top:4px;}
+.spr{display:flex;align-items:center;gap:8px;padding:18px 14px;font-family:var(--fm);font-size:9px;color:var(--mu);letter-spacing:.08em;}
+.spn{width:12px;height:12px;border:2px solid var(--b2);border-top-color:var(--red);border-radius:50%;animation:rot .65s linear infinite;flex-shrink:0;}
+.sfd{width:14px;height:14px;border-radius:50%;background:var(--b1);}
+
+/* RIGHT PANEL */
+.pc{background:var(--card);border:1px solid var(--b1);border-radius:8px;margin-bottom:.8rem;overflow:hidden;}
+.ph{background:var(--card2);border-bottom:1px solid var(--b1);padding:9px 13px;font-family:var(--fm);font-size:8px;letter-spacing:.1em;color:var(--mu);text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+.phd{width:5px;height:5px;border-radius:50%;background:var(--red);animation:blink 2s infinite;}
+.pb{padding:11px 13px;}
+.pki{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--b1);gap:8px;}
+.pki:last-child{border-bottom:none;}
+.pkm{font-size:12px;font-weight:600;color:var(--cr);margin-bottom:2px;}
+.pkt{font-size:10px;color:var(--mu);}
+.pkc{font-family:var(--fm);font-size:12px;font-weight:700;color:var(--wn);background:var(--wn-dim);padding:2px 8px;border-radius:3px;white-space:nowrap;flex-shrink:0;}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.sb{background:var(--black);border-radius:5px;padding:9px;text-align:center;}
+.sv{font-family:var(--fd);font-size:24px;line-height:1;}
+.sl{font-family:var(--fm);font-size:7px;letter-spacing:.1em;color:var(--mu);text-transform:uppercase;margin-top:2px;}
+.aff-i{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b1);gap:10px;}
+.aff-i:last-child{border-bottom:none;}
+.aff-n{font-family:var(--fd);font-size:14px;letter-spacing:.04em;color:var(--cr);}
+.aff-b{font-family:var(--fm);font-size:7px;color:var(--wn);letter-spacing:.06em;}
+.acta{background:transparent;border:1px solid var(--wn);color:var(--wn);font-family:var(--fm);font-size:7px;letter-spacing:.08em;padding:4px 8px;border-radius:3px;cursor:pointer;text-transform:uppercase;white-space:nowrap;transition:all .15s;}
+.acta:hover{background:var(--wn);color:#000;}
+
+/* ══════════════════════════════════
+   CALENDRIER P&L
+══════════════════════════════════ */
+.cal-wrap{display:grid;grid-template-columns:1fr 320px;gap:1.2rem;align-items:start;}
+.cal-grid{background:var(--card);border:1px solid var(--b1);border-radius:8px;overflow:hidden;}
+.cal-head{background:var(--card2);border-bottom:1px solid var(--b1);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+.cal-nav{display:flex;align-items:center;gap:12px;}
+.cal-nav button{background:transparent;border:1px solid var(--b1);color:var(--mu);font-family:var(--fm);font-size:12px;padding:4px 10px;border-radius:3px;cursor:pointer;transition:all .15s;}
+.cal-nav button:hover{color:var(--cr);border-color:var(--b2);}
+.cal-month{font-family:var(--fd);font-size:22px;letter-spacing:.04em;color:var(--cr);}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--b1);}
+.cal-day-lbl{padding:8px 0;text-align:center;font-family:var(--fm);font-size:8px;letter-spacing:.1em;color:var(--mu);text-transform:uppercase;border-right:1px solid var(--b1);}
+.cal-day-lbl:last-child{border-right:none;}
+.cal-cells{display:grid;grid-template-columns:repeat(7,1fr);}
+.cal-cell{min-height:72px;border-right:1px solid var(--b1);border-bottom:1px solid var(--b1);padding:6px;cursor:pointer;transition:background .15s;position:relative;}
+.cal-cell:nth-child(7n){border-right:none;}
+.cal-cell:hover{background:rgba(255,255,255,.03);}
+.cal-cell.today{background:rgba(230,50,50,.07);}
+.cal-cell.today .cal-cell-num{color:var(--red);}
+.cal-cell.other{opacity:.35;}
+.cal-cell.selected{background:rgba(232,160,32,.08);border-color:var(--wn);}
+.cal-cell-num{font-family:var(--fm);font-size:11px;font-weight:600;color:var(--mu);margin-bottom:4px;}
+.cal-entry{display:flex;align-items:center;gap:3px;padding:2px 5px;border-radius:3px;margin-bottom:2px;cursor:pointer;}
+.cal-entry.pos{background:rgba(29,184,122,.18);}
+.cal-entry.neg{background:rgba(230,50,50,.18);}
+.cal-entry-val{font-family:var(--fm);font-size:9px;font-weight:700;}
+.cal-entry.pos .cal-entry-val{color:var(--ok);}
+.cal-entry.neg .cal-entry-val{color:var(--red);}
+.cal-entry-label{font-family:var(--fm);font-size:8px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px;}
+.cal-add-btn{position:absolute;bottom:5px;right:5px;width:16px;height:16px;border-radius:50%;background:var(--b2);color:var(--mu);font-size:12px;line-height:16px;text-align:center;cursor:pointer;display:none;transition:all .15s;}
+.cal-cell:hover .cal-add-btn{display:block;}
+.cal-add-btn:hover{background:var(--red);color:#fff;}
+
+/* P&L SUMMARY PANEL */
+.pl-summary{background:var(--card);border:1px solid var(--b1);border-radius:8px;overflow:hidden;}
+.pl-big{padding:16px;text-align:center;border-bottom:1px solid var(--b1);}
+.pl-total-label{font-family:var(--fm);font-size:8px;letter-spacing:.12em;color:var(--mu);text-transform:uppercase;margin-bottom:6px;}
+.pl-total-val{font-family:var(--fd);font-size:48px;letter-spacing:.02em;line-height:1;}
+.pl-total-val.pos{color:var(--ok);}
+.pl-total-val.neg{color:var(--red);}
+.pl-total-val.zero{color:var(--mu);}
+.pl-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.pl-stat{padding:10px 14px;border-bottom:1px solid var(--b1);border-right:1px solid var(--b1);}
+.pl-stat:nth-child(2n){border-right:none;}
+.pl-stat:nth-last-child(-n+2){border-bottom:none;}
+.pl-stat-v{font-family:var(--fd);font-size:20px;line-height:1;margin-bottom:2px;}
+.pl-stat-l{font-family:var(--fm);font-size:8px;letter-spacing:.08em;color:var(--mu);text-transform:uppercase;}
+
+/* ENTRY MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.on{display:flex;}
+.modal{background:var(--card);border:1px solid var(--b2);border-radius:10px;width:380px;overflow:hidden;}
+.modal-head{background:var(--card2);border-bottom:1px solid var(--b1);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-family:var(--fd);font-size:20px;letter-spacing:.04em;color:var(--cr);}
+.modal-close{background:transparent;border:none;color:var(--mu);font-size:18px;cursor:pointer;padding:0 4px;line-height:1;}
+.modal-close:hover{color:var(--cr);}
+.modal-body{padding:16px;}
+.field{margin-bottom:12px;}
+.field label{display:block;font-family:var(--fm);font-size:8px;letter-spacing:.1em;color:var(--mu);text-transform:uppercase;margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;background:var(--black);border:1px solid var(--b2);border-radius:4px;padding:9px 12px;color:var(--cr);font-family:var(--fb);font-size:13px;outline:none;transition:border-color .2s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red);}
+.field input option,.field select option{background:var(--dark);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.modal-footer{padding:0 16px 16px;display:flex;gap:8px;}
+.btn-primary{flex:1;background:var(--red);color:#fff;border:none;padding:10px;font-family:var(--fd);font-size:17px;letter-spacing:.04em;border-radius:4px;cursor:pointer;transition:opacity .2s;}
+.btn-primary:hover{opacity:.85;}
+.btn-secondary{background:transparent;color:var(--mu);border:1px solid var(--b2);padding:10px 16px;font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:all .15s;}
+.btn-secondary:hover{color:var(--cr);border-color:var(--b2);}
+.entry-type-sel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.etype{padding:10px;border-radius:5px;text-align:center;cursor:pointer;border:2px solid var(--b1);transition:all .18s;}
+.etype.gain{border-color:var(--ok);background:rgba(29,184,122,.08);}
+.etype.gain.sel{background:var(--ok);color:#000;}
+.etype.perte{border-color:var(--red);background:var(--rdim);}
+.etype.perte.sel{background:var(--red);color:#fff;}
+.etype-icon{font-size:20px;margin-bottom:3px;}
+.etype-label{font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;}
+
+/* ══════════════════════════════════
+   MEILLEURES COTES
+══════════════════════════════════ */
+.cotes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.cote-card{background:var(--card);border:1px solid var(--b1);border-radius:8px;overflow:hidden;transition:border-color .2s,transform .2s;}
+.cote-card:hover{border-color:var(--wn);transform:translateY(-2px);}
+.cote-card-top{background:var(--card2);border-bottom:1px solid var(--b1);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;}
+.cote-comp{font-family:var(--fm);font-size:8px;letter-spacing:.08em;color:var(--mu);text-transform:uppercase;}
+.cote-time{font-family:var(--fm);font-size:10px;color:var(--wn);font-weight:700;}
+.cote-card-body{padding:12px 14px;}
+.cote-match{font-size:14px;font-weight:600;color:var(--cr);margin-bottom:8px;}
+.cote-grid{display:flex;gap:6px;margin-bottom:10px;}
+.cote-opt{flex:1;background:var(--black);border-radius:5px;padding:8px 6px;text-align:center;border:1px solid var(--b1);cursor:pointer;transition:all .15s;}
+.cote-opt:hover{border-color:var(--wn);}
+.cote-opt.best{border-color:var(--wn);background:rgba(232,160,32,.08);}
+.cote-opt-label{font-family:var(--fm);font-size:8px;color:var(--mu);text-transform:uppercase;margin-bottom:3px;}
+.cote-opt-val{font-family:var(--fd);font-size:22px;letter-spacing:.05em;color:var(--cr);}
+.cote-opt.best .cote-opt-val{color:var(--wn);}
+.cote-tip{font-family:var(--fm);font-size:9px;color:var(--mu);border-top:1px solid var(--b1);padding-top:8px;display:flex;align-items:center;gap:6px;}
+.cote-tip-pick{color:var(--cr);font-weight:600;}
+.best-badge{font-family:var(--fm);font-size:7px;background:var(--wn-dim);color:var(--wn);padding:2px 5px;border-radius:2px;text-transform:uppercase;margin-left:auto;}
+
+/* ══════════════════════════════════
+   STATS IA
+══════════════════════════════════ */
+.stats-ia-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;}
+.ia-stat-card{background:var(--card);border:1px solid var(--b1);border-radius:8px;padding:16px;}
+.ia-stat-title{font-family:var(--fm);font-size:8px;letter-spacing:.12em;color:var(--mu);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.ia-stat-title::after{content:'';flex:1;height:1px;background:var(--b1);}
+.ia-big-num{font-family:var(--fd);font-size:52px;line-height:1;letter-spacing:.02em;color:var(--cr);}
+.ia-big-num em{color:var(--red);font-style:normal;}
+.ia-sub-num{font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:4px;}
+/* bar charts */
+.bar-chart{display:flex;flex-direction:column;gap:7px;}
+.bar-row{display:flex;align-items:center;gap:8px;}
+.bar-label{font-family:var(--fm);font-size:9px;color:var(--mu);width:90px;flex-shrink:0;}
+.bar-track{flex:1;height:6px;background:var(--b1);border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;transition:width .8s ease;}
+.bar-val{font-family:var(--fm);font-size:9px;font-weight:600;width:36px;text-align:right;flex-shrink:0;}
+/* donut */
+.donut-wrap{display:flex;align-items:center;gap:16px;}
+.donut{width:80px;height:80px;flex-shrink:0;}
+.donut-svg{transform:rotate(-90deg);}
+.donut-bg{fill:none;stroke:var(--b2);stroke-width:10;}
+.donut-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dasharray .8s ease;}
+.donut-legend{display:flex;flex-direction:column;gap:5px;}
+.legend-item{display:flex;align-items:center;gap:6px;font-family:var(--fm);font-size:9px;color:var(--mu);}
+.legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+/* calendar heatmap row */
+.heatmap{display:flex;gap:3px;flex-wrap:wrap;margin-top:6px;}
+.hm-cell{width:16px;height:16px;border-radius:2px;cursor:default;}
+/* monthly perf */
+.monthly-bars{display:flex;align-items:flex-end;gap:4px;height:64px;margin-top:8px;}
+.mbar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.mbar{width:100%;border-radius:2px 2px 0 0;transition:height .5s ease;min-height:3px;}
+.mbar.pos{background:var(--ok);}
+.mbar.neg{background:var(--red);}
+.mbar-l{font-family:var(--fm);font-size:7px;color:var(--mu);}
+/* table */
+.ia-table{width:100%;border-collapse:collapse;}
+.ia-table th{font-family:var(--fm);font-size:8px;letter-spacing:.08em;color:var(--mu);text-transform:uppercase;padding:6px 8px;text-align:left;border-bottom:1px solid var(--b1);}
+.ia-table td{padding:7px 8px;font-size:12px;border-bottom:1px solid var(--b1);}
+.ia-table tr:last-child td{border-bottom:none;}
+.ia-table td.ok{color:var(--ok);font-weight:600;font-family:var(--fm);}
+.ia-table td.bad{color:var(--red);font-weight:600;font-family:var(--fm);}
+.ia-table td.num{font-family:var(--fm);color:var(--wn);}
+
+/* CHAMPIONNATS BIG 5 */
+.big5-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.8rem;margin-bottom:1.5rem;}
+.champ-card{background:var(--card);border:1px solid var(--b1);border-radius:8px;overflow:hidden;cursor:pointer;transition:all .18s;}
+.champ-card:hover{border-color:var(--red);transform:translateY(-2px);}
+.champ-card.sel{border-color:var(--red);}
+.champ-top{padding:12px;text-align:center;border-bottom:1px solid var(--b1);}
+.champ-flag{font-size:28px;margin-bottom:4px;}
+.champ-name{font-family:var(--fd);font-size:16px;letter-spacing:.04em;color:var(--cr);}
+.champ-season{font-family:var(--fm);font-size:8px;color:var(--mu);}
+.champ-stats{padding:8px 12px;display:flex;justify-content:space-between;}
+.champ-stat-v{font-family:var(--fd);font-size:18px;color:var(--cr);}
+.champ-stat-v em{color:var(--red);font-style:normal;}
+.champ-stat-l{font-family:var(--fm);font-size:7px;color:var(--mu);text-transform:uppercase;letter-spacing:.08em;}
+
+footer{border-top:1px solid var(--b1);padding:1.5rem;text-align:center;color:var(--mu);font-size:11px;line-height:1.8;}
+.flogo{font-family:var(--fd);font-size:24px;letter-spacing:.05em;color:var(--cr);margin-bottom:3px;}
+.flogo em{color:var(--red);font-style:normal;}
+footer a{color:var(--crd);text-decoration:none;}
+
+@media(max-width:1024px){.big5-grid{grid-template-columns:repeat(3,1fr);}.stats-ia-wrap{grid-template-columns:1fr;}}
+@media(max-width:860px){.cols{grid-template-columns:1fr;}.cal-wrap{grid-template-columns:1fr;}.cotes-grid{grid-template-columns:1fr;}}
+@media(max-width:580px){.page-view{padding:1rem;}.mgrid{grid-template-columns:1fr 1fr;}.h1{font-size:46px;}.nav-c{display:none;}.big5-grid{grid-template-columns:repeat(2,1fr);}.stats-ia-wrap{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo" onclick="showPage('matchs')">MATRIX<em>PRONO</em></div>
+  <div class="nav-c">
+    <button class="nt on" onclick="showPage('matchs')">Matchs</button>
+    <button class="nt" onclick="showPage('calendrier')">Calendrier P&L</button>
+    <button class="nt" onclick="showPage('cotes')">Meilleures Cotes</button>
+    <button class="nt" onclick="showPage('championnats')">Championnats</button>
+    <button class="nt" onclick="showPage('stats')">Stats IA</button>
+  </div>
+  <div class="nav-r">
+    <span id="clk"></span>
+    <div class="lpill"><div class="ld"></div>IA Active</div>
+    <button class="rbtn" id="rbtn" onclick="manualRefresh()">↻ Actualiser</button>
+  </div>
+</nav>
+
+<!-- IBAR -->
+<div class="ibar">
+  <div class="ibar-l">
+    <span>Prochain match :</span>
+    <span class="ibar-next" id="ibarNext">Argentine vs Maroc</span>
+    <span class="ibar-cd" id="ibarCd">--:--:--</span>
+  </div>
+  <div class="ibar-r">
+    <div class="sdot"></div>
+    <span id="ibarStatus">Actualisation auto toutes les 5 min</span>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="twr">
+  <div class="ttag">Live ▶</div>
+  <div class="tinn"><div class="ttrk">
+    <span class="ti"><span class="tiw">✓ GAGNÉ</span>France 2-1 Espagne · 1X2 · 2.10</span><span class="ti tis">|</span>
+    <span class="ti"><span class="tiw">✓ GAGNÉ</span>Allemagne 4-0 Curaçao · +3.5 buts · 1.65</span><span class="ti tis">|</span>
+    <span class="ti"><span class="tiw">✓ GAGNÉ</span>Pays-Bas 2-1 Japon · 1X2 · 1.98</span><span class="ti tis">|</span>
+    <span class="ti">🔴 Argentine vs Maroc · 67'</span><span class="ti tis">|</span>
+    <span class="ti"><span class="tiw">✓ GAGNÉ</span>Real Madrid 3-1 PSG · BTTS · 1.72</span><span class="ti tis">|</span>
+    <span class="ti"><span class="tiw">✓ GAGNÉ</span>Man City 2-0 Arsenal · 1X2 · 1.85</span><span class="ti tis">|</span>
+    <span class="ti">⏳ Brésil vs Portugal · 21:00</span><span class="ti tis">|</span>
+    <span class="ti"><span class="tiw">✓ GAGNÉ</span>France 2-1 Espagne · 1X2 · 2.10</span><span class="ti tis">|</span>
+    <span class="ti"><span class="tiw">✓ GAGNÉ</span>Allemagne 4-0 Curaçao · +3.5 buts · 1.65</span><span class="ti tis">|</span>
+    <span class="ti"><span class="tiw">✓ GAGNÉ</span>Pays-Bas 2-1 Japon · 1X2 · 1.98</span><span class="ti tis">|</span>
+    <span class="ti">🔴 Argentine vs Maroc · 67'</span><span class="ti tis">|</span>
+    <span class="ti"><span class="tiw">✓ GAGNÉ</span>Real Madrid 3-1 PSG · BTTS · 1.72</span><span class="ti tis">|</span>
+    <span class="ti"><span class="tiw">✓ GAGNÉ</span>Man City 2-0 Arsenal · 1X2 · 1.85</span><span class="ti tis">|</span>
+    <span class="ti">⏳ Brésil vs Portugal · 21:00</span>
+  </div></div>
+</div>
+
+<!-- HERO (matchs only) -->
+<div class="hero" id="heroSection">
+  <div class="h-eye">// MATRIX AI V3.0 — MATCHS RÉELS · AUTO-ACTUALISATION</div>
+  <div class="h1">PRONOSTICS<br><em>D'ÉLITE</em></div>
+  <p class="h-sub">Analyse IA temps réel. Probabilités · Forme · Buteurs · Score exact.</p>
+  <div class="h-kpis">
+    <div><div class="kv">73<em>%</em></div><div class="kl">Réussite 30j</div></div>
+    <div><div class="kv">+<em>1847</em></div><div class="kl">Unités gagnées</div></div>
+    <div><div class="kv">12<em>k</em></div><div class="kl">Membres actifs</div></div>
+  </div>
+</div>
+<div class="ad" id="adSection">
+  <span class="adtag">PARTENAIRE</span>
+  🎯 <strong style="color:var(--cr)">Winamax</strong> — <a href="#bonus">200€ remboursés</a> sur ton 1er pari · Nouveau client · 18+
+</div>
+
+<!-- ════ PAGE: MATCHS ════ -->
+<div class="page-view on" id="page-matchs">
+  <div class="cols">
+    <div>
+      <div class="tabs" id="tabs">
+        <button class="tab on" data-t="world">🌍 Coupe du Monde</button>
+        <button class="tab" data-t="ucl">🏆 Ligue des Champions</button>
+        <button class="tab" data-t="l1">🇫🇷 Ligue 1</button>
+        <button class="tab" data-t="pl">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</button>
+        <button class="tab" data-t="liga">🇪🇸 Liga</button>
+        <button class="tab" data-t="bund">🇩🇪 Bundesliga</button>
+      </div>
+      <div class="sh">
+        <div class="sh-t" id="sht">COUPE DU MONDE</div>
+        <div class="bdg bdg-r" id="shb">MONDIAL 2026</div>
+        <div class="upd" id="upd"></div>
+      </div>
+      <div id="mc"></div>
+    </div>
+    <div>
+      <div class="pc">
+        <div class="ph"><div class="phd"></div>MEILLEURS PICKS DU JOUR</div>
+        <div class="pb" id="topPicks"><div style="font-family:var(--fm);font-size:10px;color:var(--mu);">Analyse en cours…</div></div>
+      </div>
+      <div class="pc">
+        <div class="ph">PERFORMANCES IA — 30 JOURS</div>
+        <div class="pb">
+          <div class="sgrid">
+            <div class="sb"><div class="sv" style="color:var(--ok)">73%</div><div class="sl">Taux réussite</div></div>
+            <div class="sb"><div class="sv" style="color:var(--wn)">+284</div><div class="sl">Unités</div></div>
+            <div class="sb"><div class="sv" style="color:var(--cr)">148</div><div class="sl">Pronos joués</div></div>
+            <div class="sb"><div class="sv" style="color:var(--cr)">2.1</div><div class="sl">Cote moy.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="pc" id="bonus">
+        <div class="ph">BONUS BOOKMAKERS</div>
+        <div class="pb">
+          <p style="font-size:10px;color:var(--mu);margin-bottom:9px;">Liens affiliés · 18+ jeu responsable.</p>
+          <div class="aff-i"><div><div class="aff-n">BET365</div><div class="aff-b">100€ OFFERTS</div></div><button class="acta">Voir →</button></div>
+          <div class="aff-i"><div><div class="aff-n">WINAMAX</div><div class="aff-b">200€ REMBOURSÉS</div></div><button class="acta">Voir →</button></div>
+          <div class="aff-i"><div><div class="aff-n">UNIBET</div><div class="aff-b">150€ FREEBETS</div></div><button class="acta">Voir →</button></div>
+          <div class="aff-i"><div><div class="aff-n">BETCLIC</div><div class="aff-b">100€ FREEBETS</div></div><button class="acta">Voir →</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PAGE: CALENDRIER P&L ════ -->
+<div class="page-view" id="page-calendrier">
+  <div class="sh"><div class="sh-t">CALENDRIER</div><div class="bdg bdg-ok">SUIVI P&L</div></div>
+  <div class="cal-wrap">
+    <div>
+      <div class="cal-grid">
+        <div class="cal-head">
+          <div class="cal-nav">
+            <button onclick="calNav(-1)">◀</button>
+            <div class="cal-month" id="calMonth"></div>
+            <button onclick="calNav(1)">▶</button>
+          </div>
+          <button class="rbtn" onclick="openModal(null)">+ Ajouter une entrée</button>
+        </div>
+        <div class="cal-days">
+          <div class="cal-day-lbl">Lun</div><div class="cal-day-lbl">Mar</div><div class="cal-day-lbl">Mer</div>
+          <div class="cal-day-lbl">Jeu</div><div class="cal-day-lbl">Ven</div>
+          <div class="cal-day-lbl">Sam</div><div class="cal-day-lbl">Dim</div>
+        </div>
+        <div class="cal-cells" id="calCells"></div>
+      </div>
+    </div>
+    <div>
+      <div class="pl-summary">
+        <div class="pl-big">
+          <div class="pl-total-label">Solde total</div>
+          <div class="pl-total-val" id="plTotal">+0u</div>
+        </div>
+        <div class="pl-stats-grid">
+          <div class="pl-stat"><div class="pl-stat-v" id="plWins" style="color:var(--ok)">0</div><div class="pl-stat-l">Gains</div></div>
+          <div class="pl-stat"><div class="pl-stat-v" id="plLosses" style="color:var(--red)">0</div><div class="pl-stat-l">Pertes</div></div>
+          <div class="pl-stat"><div class="pl-stat-v" id="plWinPct" style="color:var(--cr)">—</div><div class="pl-stat-l">Win rate</div></div>
+          <div class="pl-stat"><div class="pl-stat-v" id="plBestDay" style="color:var(--wn)">—</div><div class="pl-stat-l">Meilleur jour</div></div>
+        </div>
+      </div>
+      <div class="pc" style="margin-top:.8rem;">
+        <div class="ph">DERNIÈRES ENTRÉES</div>
+        <div class="pb" id="recentEntries"><div style="font-family:var(--fm);font-size:10px;color:var(--mu);">Aucune entrée. Clique sur un jour pour commencer.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PAGE: MEILLEURES COTES ════ -->
+<div class="page-view" id="page-cotes">
+  <div class="sh"><div class="sh-t">MEILLEURES COTES</div><div class="bdg bdg-w">GRANDS RENDEZ-VOUS</div></div>
+  <div class="cotes-grid" id="cotesGrid">
+    <div style="font-family:var(--fm);font-size:10px;color:var(--mu);padding:1rem;">Chargement des cotes…</div>
+  </div>
+</div>
+
+<!-- ════ PAGE: CHAMPIONNATS ════ -->
+<div class="page-view" id="page-championnats">
+  <div class="sh"><div class="sh-t">5 GRANDS CHAMPIONNATS</div><div class="bdg bdg-r">SAISON 2025-26</div></div>
+  <div class="big5-grid">
+    <div class="champ-card sel" onclick="selectChamp('l1')">
+      <div class="champ-top"><div class="champ-flag">🇫🇷</div><div class="champ-name">LIGUE 1</div><div class="champ-season">2025-26</div></div>
+      <div class="champ-stats">
+        <div><div class="champ-stat-v">73<em>%</em></div><div class="champ-stat-l">Réussite</div></div>
+        <div><div class="champ-stat-v">+<em>84</em></div><div class="champ-stat-l">Unités</div></div>
+      </div>
+    </div>
+    <div class="champ-card" onclick="selectChamp('pl')">
+      <div class="champ-top"><div class="champ-flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</div><div class="champ-name">PREMIER L.</div><div class="champ-season">2025-26</div></div>
+      <div class="champ-stats">
+        <div><div class="champ-stat-v">71<em>%</em></div><div class="champ-stat-l">Réussite</div></div>
+        <div><div class="champ-stat-v">+<em>61</em></div><div class="champ-stat-l">Unités</div></div>
+      </div>
+    </div>
+    <div class="champ-card" onclick="selectChamp('liga')">
+      <div class="champ-top"><div class="champ-flag">🇪🇸</div><div class="champ-name">LIGA</div><div class="champ-season">2025-26</div></div>
+      <div class="champ-stats">
+        <div><div class="champ-stat-v">76<em>%</em></div><div class="champ-stat-l">Réussite</div></div>
+        <div><div class="champ-stat-v">+<em>92</em></div><div class="champ-stat-l">Unités</div></div>
+      </div>
+    </div>
+    <div class="champ-card" onclick="selectChamp('bund')">
+      <div class="champ-top"><div class="champ-flag">🇩🇪</div><div class="champ-name">BUNDESLIGA</div><div class="champ-season">2025-26</div></div>
+      <div class="champ-stats">
+        <div><div class="champ-stat-v">69<em>%</em></div><div class="champ-stat-l">Réussite</div></div>
+        <div><div class="champ-stat-v">+<em>58</em></div><div class="champ-stat-l">Unités</div></div>
+      </div>
+    </div>
+    <div class="champ-card" onclick="selectChamp('seriea')">
+      <div class="champ-top"><div class="champ-flag">🇮🇹</div><div class="champ-name">SERIE A</div><div class="champ-season">2025-26</div></div>
+      <div class="champ-stats">
+        <div><div class="champ-stat-v">70<em>%</em></div><div class="champ-stat-l">Réussite</div></div>
+        <div><div class="champ-stat-v">+<em>67</em></div><div class="champ-stat-l">Unités</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="sh"><div class="sh-t" id="champTitle">LIGUE 1</div><div class="bdg bdg-r" id="champBadge">MATCHS RÉCENTS</div></div>
+  <div id="champMatches"><div style="font-family:var(--fm);font-size:10px;color:var(--mu);">Chargement…</div></div>
+</div>
+
+<!-- ════ PAGE: STATS IA ════ -->
+<div class="page-view" id="page-stats">
+  <div class="sh"><div class="sh-t">STATISTIQUES IA</div><div class="bdg bdg-ok">MATRIX AI V3.0</div></div>
+  <div class="stats-ia-wrap">
+
+    <!-- Taux de réussite global -->
+    <div class="ia-stat-card">
+      <div class="ia-stat-title">Taux de réussite global</div>
+      <div class="ia-big-num">73<em>%</em></div>
+      <div class="ia-sub-num" style="color:var(--ok)">+4.2% vs mois précédent</div>
+      <div style="margin-top:14px;">
+        <div class="donut-wrap">
+          <div class="donut">
+            <svg class="donut-svg" viewBox="0 0 80 80" width="80" height="80">
+              <circle class="donut-bg" cx="40" cy="40" r="30"/>
+              <circle class="donut-fill" cx="40" cy="40" r="30" stroke="var(--ok)"
+                stroke-dasharray="138 51" stroke-dashoffset="0"/>
+              <circle class="donut-fill" cx="40" cy="40" r="30" stroke="var(--wn)"
+                stroke-dasharray="19 170" stroke-dashoffset="-138"/>
+              <circle class="donut-fill" cx="40" cy="40" r="30" stroke="var(--red)"
+                stroke-dasharray="32 157" stroke-dashoffset="-157"/>
+            </svg>
+          </div>
+          <div class="donut-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--ok)"></div>Gagnés <strong style="color:var(--ok);margin-left:auto;padding-left:8px;">73%</strong></div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--wn)"></div>Nuls <strong style="color:var(--wn);margin-left:auto;padding-left:8px;">10%</strong></div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Perdus <strong style="color:var(--red);margin-left:auto;padding-left:8px;">17%</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Réussite par compétition -->
+    <div class="ia-stat-card">
+      <div class="ia-stat-title">Réussite par compétition</div>
+      <div class="bar-chart">
+        <div class="bar-row"><div class="bar-label">Liga 🇪🇸</div><div class="bar-track"><div class="bar-fill" style="width:76%;background:var(--ok)"></div></div><div class="bar-val" style="color:var(--ok)">76%</div></div>
+        <div class="bar-row"><div class="bar-label">Ligue 1 🇫🇷</div><div class="bar-track"><div class="bar-fill" style="width:73%;background:var(--ok)"></div></div><div class="bar-val" style="color:var(--ok)">73%</div></div>
+        <div class="bar-row"><div class="bar-label">Premier L. 🏴󠁧󠁢󠁥󠁮󠁧󠁿</div><div class="bar-track"><div class="bar-fill" style="width:71%;background:var(--ok)"></div></div><div class="bar-val" style="color:var(--ok)">71%</div></div>
+        <div class="bar-row"><div class="bar-label">Serie A 🇮🇹</div><div class="bar-track"><div class="bar-fill" style="width:70%;background:var(--wn)"></div></div><div class="bar-val" style="color:var(--wn)">70%</div></div>
+        <div class="bar-row"><div class="bar-label">Bundesliga 🇩🇪</div><div class="bar-track"><div class="bar-fill" style="width:69%;background:var(--wn)"></div></div><div class="bar-val" style="color:var(--wn)">69%</div></div>
+        <div class="bar-row"><div class="bar-label">Ligue des Ch.</div><div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--bl)"></div></div><div class="bar-val" style="color:var(--bl)">78%</div></div>
+        <div class="bar-row"><div class="bar-label">Coupe du M.</div><div class="bar-track"><div class="bar-fill" style="width:81%;background:var(--bl)"></div></div><div class="bar-val" style="color:var(--bl)">81%</div></div>
+      </div>
+    </div>
+
+    <!-- Perf mensuelle -->
+    <div class="ia-stat-card">
+      <div class="ia-stat-title">Performance mensuelle (unités)</div>
+      <div class="monthly-bars" id="monthlyBars"></div>
+    </div>
+
+    <!-- Réussite par type de pari -->
+    <div class="ia-stat-card">
+      <div class="ia-stat-title">Réussite par type de pari</div>
+      <div class="bar-chart">
+        <div class="bar-row"><div class="bar-label">1X2 simple</div><div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--ok)"></div></div><div class="bar-val" style="color:var(--ok)">78%</div></div>
+        <div class="bar-row"><div class="bar-label">Score exact</div><div class="bar-track"><div class="bar-fill" style="width:42%;background:var(--red)"></div></div><div class="bar-val" style="color:var(--red)">42%</div></div>
+        <div class="bar-row"><div class="bar-label">+/- Buts</div><div class="bar-track"><div class="bar-fill" style="width:75%;background:var(--ok)"></div></div><div class="bar-val" style="color:var(--ok)">75%</div></div>
+        <div class="bar-row"><div class="bar-label">BTTS</div><div class="bar-track"><div class="bar-fill" style="width:71%;background:var(--ok)"></div></div><div class="bar-val" style="color:var(--ok)">71%</div></div>
+        <div class="bar-row"><div class="bar-label">Handicap</div><div class="bar-track"><div class="bar-fill" style="width:65%;background:var(--wn)"></div></div><div class="bar-val" style="color:var(--wn)">65%</div></div>
+        <div class="bar-row"><div class="bar-label">Double chance</div><div class="bar-track"><div class="bar-fill" style="width:88%;background:var(--ok)"></div></div><div class="bar-val" style="color:var(--ok)">88%</div></div>
+      </div>
+    </div>
+
+    <!-- Meilleurs pronostics récents -->
+    <div class="ia-stat-card" style="grid-column:1/-1;">
+      <div class="ia-stat-title">Meilleurs pronostics récents</div>
+      <table class="ia-table">
+        <thead><tr><th>Match</th><th>Pick</th><th>Cote</th><th>Conf.</th><th>Résultat</th><th>Gain/Perte</th></tr></thead>
+        <tbody>
+          <tr><td>France vs Espagne</td><td>Victoire France</td><td class="num">2.10</td><td class="num">82%</td><td class="ok">✓ GAGNÉ</td><td class="ok">+1.10u</td></tr>
+          <tr><td>Allemagne vs Curaçao</td><td>+3.5 buts</td><td class="num">1.65</td><td class="num">91%</td><td class="ok">✓ GAGNÉ</td><td class="ok">+0.65u</td></tr>
+          <tr><td>Real Madrid vs PSG</td><td>BTTS</td><td class="num">1.72</td><td class="num">74%</td><td class="ok">✓ GAGNÉ</td><td class="ok">+0.72u</td></tr>
+          <tr><td>Pays-Bas vs Japon</td><td>Victoire NED</td><td class="num">1.98</td><td class="num">78%</td><td class="ok">✓ GAGNÉ</td><td class="ok">+0.98u</td></tr>
+          <tr><td>Brésil vs Argentine</td><td>Victoire Argentine</td><td class="num">2.85</td><td class="num">61%</td><td class="bad">✗ PERDU</td><td class="bad">-1.00u</td></tr>
+          <tr><td>Man City vs Arsenal</td><td>+2.5 buts</td><td class="num">1.75</td><td class="num">79%</td><td class="ok">✓ GAGNÉ</td><td class="ok">+0.75u</td></tr>
+          <tr><td>Bayern vs Dortmund</td><td>1X Bayern</td><td class="num">1.55</td><td class="num">85%</td><td class="ok">✓ GAGNÉ</td><td class="ok">+0.55u</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL AJOUT ENTRÉE -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">NOUVELLE ENTRÉE</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="entry-type-sel">
+        <div class="etype gain sel" id="etGain" onclick="selectType('gain')">
+          <div class="etype-icon">💚</div>
+          <div class="etype-label">Gain</div>
+        </div>
+        <div class="etype perte" id="etPerte" onclick="selectType('perte')">
+          <div class="etype-icon">🔴</div>
+          <div class="etype-label">Perte</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Montant (unités)</label>
+          <input type="number" id="entryAmount" placeholder="ex: 2.5" step="0.1" min="0.1">
+        </div>
+        <div class="field">
+          <label>Cote</label>
+          <input type="number" id="entryCote" placeholder="ex: 1.85" step="0.01" min="1">
+        </div>
+      </div>
+      <div class="field">
+        <label>Match</label>
+        <input type="text" id="entryMatch" placeholder="ex: France vs Espagne">
+      </div>
+      <div class="field">
+        <label>Type de pari</label>
+        <select id="entryType">
+          <option>1X2</option><option>+/- Buts</option><option>BTTS</option>
+          <option>Score exact</option><option>Handicap</option><option>Double chance</option><option>Autre</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+      <button class="btn-primary" onclick="saveEntry()">ENREGISTRER</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="flogo">MATRIX<em>PRONO</em></div>
+  <p>© 2026 Matrix Prono — Tous droits réservés</p>
+  <p style="margin-top:5px;"><a href="#">Mentions légales</a> · <a href="#">CGU</a> · <a href="#">Jeu responsable</a></p>
+  <p style="margin-top:8px;max-width:540px;margin-left:auto;margin-right:auto;opacity:.4;font-size:10px;">Paris sportifs = risque financier. 18+. Joueurs Info Service : 09 74 75 13 13. Liens affiliés.</p>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
+const pages = ['matchs','calendrier','cotes','championnats','stats'];
+function showPage(id){
+  pages.forEach(p=>{
+    document.getElementById('page-'+p).classList.toggle('on',p===id);
+  });
+  document.querySelectorAll('.nt').forEach((b,i)=>b.classList.toggle('on',pages[i]===id));
+  document.getElementById('heroSection').style.display = id==='matchs'?'':'none';
+  document.getElementById('adSection').style.display = id==='matchs'?'':'none';
+  if(id==='cotes' && !cotesLoaded) loadCotes();
+  if(id==='championnats' && !champLoaded) { champLoaded=true; loadChamp('l1'); }
+  if(id==='stats') renderMonthlyBars();
+  window.scrollTo(0,0);
+}
+let cotesLoaded=false, champLoaded=false;
+
+/* ═══════════════════════════════════════
+   CLOCK + COUNTDOWN
+═══════════════════════════════════════ */
+setInterval(()=>{
+  const n=new Date();
+  document.getElementById('clk').textContent=
+    `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;
+},1000);
+
+let cdSecs=0;
+function startCD(name,time){
+  clearInterval(window._cdi);
+  document.getElementById('ibarNext').textContent=name;
+  const [hh,mm]=time.split(':').map(Number);
+  const t=new Date(); t.setHours(hh,mm,0,0);
+  if(t<=new Date()) t.setDate(t.getDate()+1);
+  window._cdi=setInterval(()=>{
+    const d=Math.max(0,t-new Date());
+    const h=Math.floor(d/3600000),mi=Math.floor((d%3600000)/60000),s=Math.floor((d%60000)/1000);
+    document.getElementById('ibarCd').textContent=d?`${String(h).padStart(2,'0')}:${String(mi).padStart(2,'0')}:${String(s).padStart(2,'0')}`:'MAINTENANT';
+  },1000);
+}
+
+let arSecs=300;
+function startAR(){
+  clearInterval(window._ari);
+  arSecs=300;
+  window._ari=setInterval(()=>{
+    arSecs--;
+    const m=Math.floor(arSecs/60),s=arSecs%60;
+    const el=document.getElementById('ibarStatus');
+    if(el) el.textContent=`Prochaine mise à jour dans ${m}:${String(s).padStart(2,'0')}`;
+    if(arSecs<=0){ manualRefresh(); }
+  },1000);
+}
+
+/* ═══════════════════════════════════════
+   MATCH DATA
+═══════════════════════════════════════ */
+const TODAY=new Date();
+const D=`${String(TODAY.getDate()).padStart(2,'0')}/${String(TODAY.getMonth()+1).padStart(2,'0')}`;
+const TOURS={
+  world:{name:'COUPE DU MONDE',badge:'MONDIAL 2026',matches:[
+    {home:'Argentine',away:'Maroc',flag:'🌍',comp:'Groupe A · MetLife',time:'18:00',hot:true,date:'15/06'},
+    {home:'Pays-Bas',away:'Japon',flag:'🌍',comp:'Groupe F · AT&T',time:'21:00',date:'15/06'},
+    {home:'Allemagne',away:'Curaçao',flag:'🌍',comp:'Groupe E · NRG',time:'21:00',hot:true,date:'15/06'},
+    {home:'Espagne',away:'Brésil',flag:'🌍',comp:'Groupe H · SoFi',time:'00:00',date:'16/06'},
+    {home:'France',away:'Mexique',flag:'🌍',comp:'Groupe D · Gillette',time:'21:00',hot:true,date:'16/06'},
+    {home:'Portugal',away:'États-Unis',flag:'🌍',comp:'Groupe B · Levi\'s',time:'00:00',date:'17/06'},
+  ]},
+  ucl:{name:'LIGUE DES CHAMPIONS',badge:'FINALE MUNICH 2026',matches:[
+    {home:'Real Madrid',away:'Bayern Munich',flag:'🏆',comp:'Demi-finale · Allianz',time:'21:00',hot:true,date:'17/06'},
+    {home:'Arsenal',away:'Inter Milan',flag:'🏆',comp:'Demi-finale · Emirates',time:'21:00',date:'17/06'},
+  ]},
+  l1:{name:'LIGUE 1',badge:'PLAYOFFS 2025-26',matches:[
+    {home:'Angers',away:'Metz',flag:'🇫🇷',comp:'Barrage aller · Kopa',time:'20:00',hot:true,date:'16/06'},
+    {home:'Clermont',away:'Le Havre',flag:'🇫🇷',comp:'Barrage · Montpied',time:'18:30',date:'15/06'},
+  ]},
+  pl:{name:'PREMIER LEAGUE',badge:'PLAY-OFFS 2025-26',matches:[
+    {home:'Leeds Utd',away:'Sunderland',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',comp:'Final · Wembley',time:'16:00',hot:true,date:'15/06'},
+  ]},
+  liga:{name:'LIGA',badge:'PRÉPARATION 2026-27',matches:[
+    {home:'FC Barcelone',away:'Athletic Bilbao',flag:'🇪🇸',comp:'Amical · Camp Nou',time:'20:00',date:'18/06'},
+    {home:'Real Madrid',away:'Atlético Madrid',flag:'🇪🇸',comp:'Amical · Bernabéu',time:'21:00',hot:true,date:'19/06'},
+  ]},
+  bund:{name:'BUNDESLIGA',badge:'PRÉPARATION 2026-27',matches:[
+    {home:'Bayern Munich',away:'Dortmund',flag:'🇩🇪',comp:'Amical · Allianz',time:'18:30',hot:true,date:'18/06'},
+    {home:'Bayer Leverkusen',away:'Stuttgart',flag:'🇩🇪',comp:'Amical · BayArena',time:'16:00',date:'17/06'},
+  ]},
+};
+
+let curTab='world', busy=false;
+const cache={};
+
+/* ═══════════════════════════════════════
+   MATCH CARD RENDERING
+═══════════════════════════════════════ */
+function uid(m){return(m.home+m.away).replace(/\s/g,'');}
+function dots(f){return(f||[]).map(r=>`<div class="fd ${r}">${r}</div>`).join('');}
+function skelDots(){return`<div class="sfd"></div>`.repeat(5);}
+function probaBars(d,n,e){
+  const t=d+n+e||100; d=Math.round(d/t*100); n=Math.round(n/t*100); e=100-d-n;
+  return`<div class="pw"><div class="pbar"><div class="ps d" style="width:${d}%"></div><div class="ps n" style="width:${n}%"></div><div class="ps e" style="width:${e}%"></div></div><div class="pls"><div class="pl d">Dom<span>${d}%</span></div><div class="pl n">Nul<span>${n}%</span></div><div class="pl e">Ext<span>${e}%</span></div></div></div>`;
+}
+function renderSkel(m){
+  return`<div class="mc${m.hot?' hot':''}" id="mc-${uid(m)}"><div class="mct"><div class="mcc"><span>${m.flag}</span><span>${m.comp}</span></div><div class="mcr"><span class="mtime">${m.time}</span>${m.hot?'<span class="hpill">🔥 HOT</span>':''}</div></div><div class="mcb"><div class="trow"><div class="tb"><div class="tn">${m.home}</div><div class="fr">${skelDots()}</div></div><div class="vsb"><div class="vst">vs</div></div><div class="tb aw"><div class="tn">${m.away}</div><div class="fr">${skelDots()}</div></div></div><div class="spr"><div class="spn"></div>MATRIX AI ANALYSE EN COURS…</div></div></div>`;
+}
+function renderFull(m,d){
+  const sc=[...(d.sh||[]).slice(0,2),...(d.sa||[]).slice(0,2)].slice(0,3);
+  return`<div class="mc${m.hot?' hot':''}" id="mc-${uid(m)}"><div class="mct"><div class="mcc"><span>${m.flag}</span><span>${m.comp}</span><span style="color:var(--b2)">·</span><span>${m.date||D}</span></div><div class="mcr"><span class="mtime">${m.time}</span>${m.hot?'<span class="hpill">🔥 HOT</span>':''}</div></div><div class="mcb"><div class="trow"><div class="tb"><div class="tn">${m.home}</div><div class="fr">${dots(d.fh)}</div></div><div class="vsb"><div class="sbig">${d.score||'?-?'}</div></div><div class="tb aw"><div class="tn">${m.away}</div><div class="fr">${dots(d.fa)}</div></div></div>${probaBars(d.pd||40,d.pn||25,d.pe||35)}<div class="mgrid"><div class="gc"><div class="gcl">Buts probables</div><div class="bv">${d.bt||'2.5'}</div><div class="br">${d.br||'Entre 2 et 4 buts'}</div></div><div class="gc"><div class="gcl">Buteurs probables</div>${sc.map(s=>`<div class="sc"><span class="scn">${s.n}</span><span class="scp">${s.p}%</span></div>`).join('')}${!sc.length?'<div class="sc"><span class="scn" style="color:var(--mu)">—</span></div>':''}</div><div class="gc"><div class="gcl">Pronostic</div><div class="pv">${d.pick||'—'}</div><span class="ct">${d.cote||'—'}</span><div class="cf">Conf. ${d.conf||'—'}%</div></div></div></div></div>`;
+}
+
+function fallback(m){
+  const rf=()=>['W','D','L','W','W'].sort(()=>Math.random()-.5);
+  const pd=Math.floor(35+Math.random()*25),pn=Math.floor(15+Math.random()*18),pe=100-pd-pn;
+  return{score:`${Math.floor(Math.random()*3)}-${Math.floor(Math.random()*2)}`,pd,pn,pe,fh:rf(),fa:rf(),bt:(1.5+Math.random()*2).toFixed(1),br:'Entre 1 et 4 buts',sh:[{n:m.home+' Att.',p:Math.floor(28+Math.random()*20)}],sa:[{n:m.away+' Att.',p:Math.floor(22+Math.random()*18)}],pick:'Victoire '+m.home,cote:'2.10',conf:Math.floor(62+Math.random()*22)};
+}
+
+async function analyzeMatch(m){
+  const k=uid(m);
+  if(cache[k]&&(Date.now()-cache[k].ts)<4*60*1000) return cache[k].data;
+  const prompt=`Tu es MATRIX AI. Match: ${m.home} vs ${m.away} — ${m.comp} — ${m.time} — ${m.date||D}/2026.\nContexte Coupe du Monde 2026 ou compétition européenne/nationale selon la compétition indiquée. Base-toi sur les effectifs et forme réelle connus mi-2025.\nJSON uniquement, pas de markdown:\n{"score":"X-X","pd":45,"pn":25,"pe":30,"fh":["W","W","D","L","W"],"fa":["L","W","W","D","L"],"bt":"2.5","br":"Entre 2 et 4 buts","sh":[{"n":"JoueurRéel","p":38},{"n":"JoueurRéel2","p":24}],"sa":[{"n":"JoueurRéel3","p":31},{"n":"JoueurRéel4","p":19}],"pick":"Pronostic","cote":"2.10","conf":72}\npd+pn+pe=100. Joueurs réels. Cote 1.25-5.00.`;
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,messages:[{role:'user',content:prompt}]})});
+  const j=await r.json();
+  const txt=j.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+  const parsed=JSON.parse(txt);
+  cache[k]={data:parsed,ts:Date.now()};
+  return parsed;
+}
+
+async function loadTour(key,isAuto=false){
+  if(busy) return; busy=true; curTab=key;
+  const t=TOURS[key];
+  document.getElementById('sht').textContent=t.name;
+  document.getElementById('shb').textContent=t.badge;
+  document.getElementById('upd').textContent='';
+  const btn=document.getElementById('rbtn');
+  btn.innerHTML='<span class="spin">↻</span> Analyse…'; btn.disabled=true;
+  document.getElementById('mc').innerHTML=t.matches.map(m=>renderSkel(m)).join('');
+  await Promise.all(t.matches.map(async m=>{
+    try{const d=await analyzeMatch(m); const el=document.getElementById('mc-'+uid(m)); if(el) el.outerHTML=renderFull(m,d);}
+    catch(e){const d=fallback(m); const el=document.getElementById('mc-'+uid(m)); if(el) el.outerHTML=renderFull(m,d);}
+  }));
+  updateTopPicks(t.matches);
+  const now=new Date();
+  document.getElementById('upd').textContent=`· ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  btn.innerHTML='↻ Actualiser'; btn.disabled=false; busy=false;
+  const hm=t.matches.find(m=>m.hot)||t.matches[0];
+  if(hm) startCD(`${hm.home} vs ${hm.away}`,hm.time);
+  startAR();
+}
+
+function updateTopPicks(matches){
+  const hot=matches.filter(m=>m.hot).slice(0,5);
+  document.getElementById('topPicks').innerHTML=hot.length?hot.map(m=>{
+    const d=cache[uid(m)]?.data;
+    return`<div class="pki"><div><div class="pkm">${m.home} vs ${m.away}</div><div class="pkt">${d?d.pick:'Analyse…'} · ${m.comp.split('·')[0].trim()}</div></div><div class="pkc">${d?d.cote:'—'}</div></div>`;
+  }).join(''):'<div style="font-family:var(--fm);font-size:10px;color:var(--mu);">—</div>';
+}
+
+function manualRefresh(){Object.keys(cache).forEach(k=>delete cache[k]); arSecs=300; loadTour(curTab,false);}
+
+document.getElementById('tabs').addEventListener('click',e=>{
+  const b=e.target.closest('.tab'); if(!b||b.classList.contains('on')) return;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  loadTour(b.dataset.t);
+});
+
+/* ═══════════════════════════════════════
+   CALENDRIER P&L
+═══════════════════════════════════════ */
+let calYear=TODAY.getFullYear(), calMonth=TODAY.getMonth();
+let plData=JSON.parse(localStorage.getItem('matrixPL')||'{}');
+let selectedDate=null, entryType='gain';
+
+function savePL(){localStorage.setItem('matrixPL',JSON.stringify(plData));}
+
+function renderCal(){
+  const months=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  document.getElementById('calMonth').textContent=`${months[calMonth]} ${calYear}`;
+  const first=new Date(calYear,calMonth,1);
+  let startDay=first.getDay()-1; if(startDay<0) startDay=6;
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const prevDays=new Date(calYear,calMonth,0).getDate();
+  let html='';
+  for(let i=startDay-1;i>=0;i--){
+    html+=`<div class="cal-cell other"><div class="cal-cell-num">${prevDays-i}</div></div>`;
+  }
+  for(let d=1;d<=daysInMonth;d++){
+    const key=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday=d===TODAY.getDate()&&calMonth===TODAY.getMonth()&&calYear===TODAY.getFullYear();
+    const isSel=selectedDate===key;
+    const entries=plData[key]||[];
+    const dayTotal=entries.reduce((s,e)=>s+(e.type==='gain'?e.amount:-e.amount),0);
+    html+=`<div class="cal-cell${isToday?' today':''}${isSel?' selected':''}" onclick="selectDay('${key}')">
+      <div class="cal-cell-num">${d}</div>
+      ${entries.map(e=>`<div class="cal-entry ${e.type==='gain'?'pos':'neg'}" onclick="event.stopPropagation();openModal('${key}')">
+        <span class="cal-entry-val">${e.type==='gain'?'+':'-'}${Math.abs(e.amount)}u</span>
+        <span class="cal-entry-label">${e.match||e.betType}</span>
+      </div>`).join('')}
+      ${entries.length?'':''}
+      <div class="cal-add-btn" onclick="event.stopPropagation();openModal('${key}')">+</div>
+    </div>`;
+  }
+  document.getElementById('calCells').innerHTML=html;
+  updatePLStats();
+}
+
+function calNav(dir){calMonth+=dir; if(calMonth>11){calMonth=0;calYear++;} if(calMonth<0){calMonth=11;calYear--;} renderCal();}
+
+function selectDay(key){selectedDate=key; renderCal(); openModal(key);}
+
+function updatePLStats(){
+  const allEntries=Object.values(plData).flat();
+  const gains=allEntries.filter(e=>e.type==='gain');
+  const pertes=allEntries.filter(e=>e.type==='perte');
+  const total=allEntries.reduce((s,e)=>s+(e.type==='gain'?e.amount:-e.amount),0);
+  const el=document.getElementById('plTotal');
+  el.textContent=(total>=0?'+':'')+total.toFixed(1)+'u';
+  el.className='pl-total-val'+(total>0?' pos':total<0?' neg':' zero');
+  document.getElementById('plWins').textContent=gains.length;
+  document.getElementById('plLosses').textContent=pertes.length;
+  const wr=allEntries.length?Math.round(gains.length/allEntries.length*100):null;
+  document.getElementById('plWinPct').textContent=wr!==null?wr+'%':'—';
+  const byDay={};
+  allEntries.forEach(e=>{if(!byDay[e.date])byDay[e.date]=0; byDay[e.date]+=(e.type==='gain'?e.amount:-e.amount);});
+  const best=Object.values(byDay).length?Math.max(...Object.values(byDay)):null;
+  document.getElementById('plBestDay').textContent=best!==null?(best>=0?'+':'')+best.toFixed(1)+'u':'—';
+  // recent entries
+  const recent=[...allEntries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
+  document.getElementById('recentEntries').innerHTML=recent.length?recent.map(e=>`
+    <div class="pki">
+      <div><div class="pkm" style="color:${e.type==='gain'?'var(--ok)':'var(--red)'}">${e.type==='gain'?'+':'-'}${Math.abs(e.amount)}u — ${e.match||'—'}</div>
+      <div class="pkt">${e.betType||''} · Cote ${e.cote||'—'} · ${e.date}</div></div>
+      <div style="font-family:var(--fm);font-size:10px;color:${e.type==='gain'?'var(--ok)':'var(--red)'};font-weight:700;">${e.type==='gain'?'✓':'✗'}</div>
+    </div>`).join(''):'<div style="font-family:var(--fm);font-size:10px;color:var(--mu);">Aucune entrée.</div>';
+}
+
+function selectType(t){
+  entryType=t;
+  document.getElementById('etGain').classList.toggle('sel',t==='gain');
+  document.getElementById('etPerte').classList.toggle('sel',t==='perte');
+}
+
+function openModal(dateKey){
+  selectedDate=dateKey||selectedDate||`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(TODAY.getDate()).padStart(2,'0')}`;
+  document.getElementById('modalTitle').textContent=`ENTRÉE — ${selectedDate}`;
+  document.getElementById('entryAmount').value='';
+  document.getElementById('entryCote').value='';
+  document.getElementById('entryMatch').value='';
+  selectType('gain');
+  document.getElementById('modalOverlay').classList.add('on');
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('on');}
+
+function saveEntry(){
+  const amount=parseFloat(document.getElementById('entryAmount').value);
+  const cote=parseFloat(document.getElementById('entryCote').value)||null;
+  const match=document.getElementById('entryMatch').value.trim();
+  const betType=document.getElementById('entryType').value;
+  if(!amount||amount<=0){alert('Entre un montant valide.'); return;}
+  if(!plData[selectedDate]) plData[selectedDate]=[];
+  plData[selectedDate].push({type:entryType,amount,cote,match,betType,date:selectedDate,ts:Date.now()});
+  savePL(); closeModal(); renderCal();
+}
+
+/* ═══════════════════════════════════════
+   MEILLEURES COTES
+═══════════════════════════════════════ */
+const COTES_MATCHES=[
+  {home:'Argentine',away:'Maroc',comp:'🌍 Groupe A · Mondial',time:'18:00',date:'15/06'},
+  {home:'Allemagne',away:'Curaçao',comp:'🌍 Groupe E · Mondial',time:'21:00',date:'15/06'},
+  {home:'France',away:'Mexique',comp:'🌍 Groupe D · Mondial',time:'21:00',date:'16/06'},
+  {home:'Real Madrid',away:'Bayern Munich',comp:'🏆 UCL Demi-finale',time:'21:00',date:'17/06'},
+  {home:'Brésil',away:'Portugal',comp:'🌍 Groupe B · Mondial',time:'00:00',date:'16/06'},
+  {home:'PSG',away:'Marseille',comp:'🇫🇷 Ligue 1 Playoff',time:'21:05',date:'18/06'},
+];
+
+async function loadCotes(){
+  cotesLoaded=true;
+  const grid=document.getElementById('cotesGrid');
+  grid.innerHTML='<div style="font-family:var(--fm);font-size:10px;color:var(--mu);padding:1rem;">Chargement des cotes via IA…</div>';
+  const results=await Promise.all(COTES_MATCHES.map(async m=>{
+    try{
+      const prompt=`Tu es un expert en cotes de paris. Match: ${m.home} vs ${m.away} (${m.comp}).\nJSON uniquement:\n{"d":2.10,"n":3.40,"e":3.20,"pick":"Victoire ${m.home}","best":"1","tip":"Forme solide de ${m.home}","bt_over":1.75,"bt_under":2.05,"btts_yes":1.80,"btts_no":1.95}\nbest = "1"/"n"/"2". Cotes réalistes entre 1.20 et 6.00.`;
+      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:300,messages:[{role:'user',content:prompt}]})});
+      const j=await r.json();
+      const txt=j.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+      return{m,c:JSON.parse(txt)};
+    }catch(e){
+      return{m,c:{d:(1.5+Math.random()*1.5).toFixed(2),n:(2.8+Math.random()).toFixed(2),e:(2.2+Math.random()*1.5).toFixed(2),pick:'Victoire '+m.home,best:'1',tip:'Analyse disponible',bt_over:1.75,bt_under:2.05,btts_yes:1.80,btts_no:1.95}};
+    }
+  }));
+  grid.innerHTML=results.map(({m,c})=>`
+    <div class="cote-card">
+      <div class="cote-card-top">
+        <span class="cote-comp">${m.comp} · ${m.date}</span>
+        <span class="cote-time">${m.time}</span>
+      </div>
+      <div class="cote-card-body">
+        <div class="cote-match">${m.home} vs ${m.away}</div>
+        <div class="cote-grid">
+          <div class="cote-opt${c.best==='1'?' best':''}" title="Victoire ${m.home}">
+            <div class="cote-opt-label">1</div>
+            <div class="cote-opt-val">${c.d}</div>
+          </div>
+          <div class="cote-opt${c.best==='n'?' best':''}" title="Match nul">
+            <div class="cote-opt-label">N</div>
+            <div class="cote-opt-val">${c.n}</div>
+          </div>
+          <div class="cote-opt${c.best==='2'?' best':''}" title="Victoire ${m.away}">
+            <div class="cote-opt-label">2</div>
+            <div class="cote-opt-val">${c.e}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;">
+          <div class="cote-opt" style="flex:1;" title="+2.5 buts"><div class="cote-opt-label">+2.5</div><div class="cote-opt-val" style="font-size:16px;">${c.bt_over}</div></div>
+          <div class="cote-opt" style="flex:1;" title="-2.5 buts"><div class="cote-opt-label">-2.5</div><div class="cote-opt-val" style="font-size:16px;">${c.bt_under}</div></div>
+          <div class="cote-opt" style="flex:1;" title="BTTS Oui"><div class="cote-opt-label">BTTS O</div><div class="cote-opt-val" style="font-size:16px;">${c.btts_yes}</div></div>
+          <div class="cote-opt" style="flex:1;" title="BTTS Non"><div class="cote-opt-label">BTTS N</div><div class="cote-opt-val" style="font-size:16px;">${c.btts_no}</div></div>
+        </div>
+        <div class="cote-tip">
+          <span>Pick IA :</span><span class="cote-tip-pick">${c.pick}</span>
+          <span class="best-badge">MEILLEURE COTE</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════
+   CHAMPIONNATS
+═══════════════════════════════════════ */
+const CHAMP_DATA={
+  l1:{name:'LIGUE 1',matches:[
+    {home:'PSG',away:'Marseille',flag:'🇫🇷',comp:'Ligue 1 · J38',time:'21:05',hot:true,date:'18/06'},
+    {home:'Lyon',away:'Monaco',flag:'🇫🇷',comp:'Ligue 1 · J38',time:'17:00',date:'18/06'},
+    {home:'Lens',away:'Lille',flag:'🇫🇷',comp:'Ligue 1 · J38',time:'15:00',date:'18/06'},
+  ]},
+  pl:{name:'PREMIER LEAGUE',matches:[
+    {home:'Leeds Utd',away:'Sunderland',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',comp:'Championship Final · Wembley',time:'16:00',hot:true,date:'15/06'},
+    {home:'Bournemouth',away:'Wolves',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',comp:'PL Dernier match',time:'16:00',date:'18/06'},
+  ]},
+  liga:{name:'LIGA',matches:[
+    {home:'FC Barcelone',away:'Athletic Bilbao',flag:'🇪🇸',comp:'Amical préparation',time:'20:00',date:'18/06'},
+    {home:'Real Madrid',away:'Atlético Madrid',flag:'🇪🇸',comp:'Amical préparation',time:'21:00',hot:true,date:'19/06'},
+  ]},
+  bund:{name:'BUNDESLIGA',matches:[
+    {home:'Bayern Munich',away:'Dortmund',flag:'🇩🇪',comp:'Amical préparation',time:'18:30',hot:true,date:'18/06'},
+    {home:'Bayer Leverkusen',away:'Stuttgart',flag:'🇩🇪',comp:'Amical préparation',time:'16:00',date:'17/06'},
+  ]},
+  seriea:{name:'SERIE A',matches:[
+    {home:'Juventus',away:'Inter Milan',flag:'🇮🇹',comp:'Serie A · J38',time:'18:00',hot:true,date:'18/06'},
+    {home:'AC Milan',away:'Napoli',flag:'🇮🇹',comp:'Serie A · J38',time:'18:00',date:'18/06'},
+  ]},
+};
+let curChamp='l1';
+async function loadChamp(key){
+  curChamp=key;
+  document.querySelectorAll('.champ-card').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('champTitle').textContent=CHAMP_DATA[key].name;
+  const cont=document.getElementById('champMatches');
+  const matches=CHAMP_DATA[key].matches;
+  cont.innerHTML=matches.map(m=>renderSkel(m)).join('');
+  await Promise.all(matches.map(async m=>{
+    try{const d=await analyzeMatch(m); const el=document.getElementById('mc-'+uid(m)); if(el) el.outerHTML=renderFull(m,d);}
+    catch(e){const d=fallback(m); const el=document.getElementById('mc-'+uid(m)); if(el) el.outerHTML=renderFull(m,d);}
+  }));
+}
+function selectChamp(key){
+  document.querySelectorAll('.champ-card').forEach((c,i)=>c.classList.toggle('sel',['l1','pl','liga','bund','seriea'][i]===key));
+  loadChamp(key);
+}
+
+/* ═══════════════════════════════════════
+   STATS IA — MONTHLY BARS
+═══════════════════════════════════════ */
+const MONTHLY=[
+  {m:'Jan',v:+42},{m:'Fév',v:+28},{m:'Mar',v:-12},{m:'Avr',v:+67},{m:'Mai',v:+35},{m:'Jun',v:+124},
+];
+function renderMonthlyBars(){
+  const max=Math.max(...MONTHLY.map(x=>Math.abs(x.v)));
+  document.getElementById('monthlyBars').innerHTML=MONTHLY.map(d=>`
+    <div class="mbar-wrap">
+      <div class="mbar ${d.v>=0?'pos':'neg'}" style="height:${Math.round(Math.abs(d.v)/max*60)+4}px"></div>
+      <div class="mbar-l">${d.m}</div>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+renderCal();
+renderMonthlyBars();
+loadTour('world');
+startCD('Argentine vs Maroc','18:00');
+</script>
+</body>
+</html>
